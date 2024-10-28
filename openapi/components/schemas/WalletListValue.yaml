@@ -1,0 +1,16 @@
+type: object
+required:
+  - id
+  - createdAt
+  - owner
+  - balance
+properties:
+  id:
+    $ref: 'Uuid.yaml'
+  createdAt:
+    type: string
+    format: date-time
+  owner:
+    type: string
+  balance:
+    $ref: 'Amount.yaml'

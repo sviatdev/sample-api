@@ -1,0 +1,19 @@
+type: object
+required:
+  - id
+  - type
+  - time
+  - amount
+  - note
+properties:
+  id:
+    $ref: 'Uuid.yaml'
+  type:
+    $ref: 'TransactionType.yaml'
+  time:
+    type: string
+    format: date-time
+  amount:
+    $ref: 'Amount.yaml'
+  note:
+    type: string

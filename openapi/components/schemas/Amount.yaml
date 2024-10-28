@@ -1,0 +1,3 @@
+description: Decimal amount of money
+type: number
+multipleOf: 0.01

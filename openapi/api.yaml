@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Sample API
+  description: Sample specification with Java Sample API and abstract examples
+  version: 3.3.5
+
+servers:
+  - url: 'http://java-sample-service'
+
+paths:
+  /wallets:
+    post:
+      summary: Create new Wallet
+      description: Create new Wallet in the system
+      operationId: createWallet
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - owner
+              properties:
+                owner:
+                  type: string
+      responses:
+        '201':
+          description: Successful operation
+          headers:
+            Location:
+              description: URI to a created Wallet
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Missing or wrong request body
+        '403':
+          description: Owner is in blacklist
+        '409':
+          description: Owner already has a Wallet
+    get:
+      summary: Find all Wallets
+      description: Returns all Wallets in the system
+      operationId: findAllWallets
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components/schemas/WalletListValue.yaml'
+  /wallets/{id}:
+    get:
+      summary: Find Wallet by ID
+      description: Returns a single Wallet
+      operationId: findWalletById
+      parameters:
+        - name: id
+          in: path
+          description: ID of the resource
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: 'components/schemas/WalletResource.yaml'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Wallet not found
+    delete:
+      summary: Delete Wallet by ID
+      description: Deletes Wallet if it exists
+      operationId: deleteWalletById
+      parameters:
+        - name: id
+          in: path
+          description: ID of the resource
+          required: true
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: Wallet not found
+  /wallets/{id}/deposits:
+    post:
+      summary: Deposit amount
+      description: Performs Deposit transaction for Wallet by ID
+      operationId: depositById
+      parameters:
+        - name: id
+          in: path
+          description: ID of the resource
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  $ref: 'components/schemas/Amount.yaml'
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: Wallet not found
+        '429':
+          description: Limit of operations is exceeded
+  /wallets/{id}/withdrawals:
+    post:
+      summary: Withdraw amount
+      description: Performs Withdraw transaction for Wallet by ID
+      operationId: withdrawById
+      parameters:
+         - name: id
+           in: path
+           description: ID of the resource
+           required: true
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  $ref: 'components/schemas/Amount.yaml'
+      responses:
+        '204':
+          description: Successful operation
+        '404':
+          description: Wallet not found
+        '429':
+          description: Limit of operations is exceeded
+
+components:
+  schemas:
+    ExampleObject:
+      type: object
+      required:
+        - id
+        - wallet
+      properties:
+        id:
+          $ref: 'components/schemas/Uuid.yaml'
+        wallet:
+          $ref: 'components/schemas/WalletResource.yaml'
+        stringMap:
+          $ref: '#/components/schemas/StringMap'
+        customTypeMap:
+          $ref: '#/components/schemas/CustomTypeMap'
+        pet:
+          $ref: '#/components/schemas/Pet'
+        animal:
+          $ref: '#/components/schemas/Animal'
+    Language:
+      type: string
+      enum:
+        - en
+        - fr
+        - de
+    StringMap:
+      type: object
+      additionalProperties:
+        type: string
+    CustomTypeMap:
+      type: object
+      additionalProperties:
+        $ref: 'components/schemas/Uuid.yaml'
+    Pet:
+      type: object
+      required:
+        - type
+        - name
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+    Dog:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            bark:
+              type: boolean
+            breed:
+              type: string
+              enum: [ Dingo, Husky, Retriever, Shepherd ]
+    Cat:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          required:
+            - hunts
+            - age
+          properties:
+            hunts:
+              type: boolean
+            age:
+              type: integer
+    WildAnimal:
+      type: object
+      required:
+        - type
+        - country
+      properties:
+        type:
+          type: string
+        angry:
+          type: boolean
+        country:
+          type: string
+    Animal:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/WildAnimal'
+      discriminator:
+        propertyName: type

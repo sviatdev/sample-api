@@ -1,0 +1,4 @@
+name: id
+in: path
+description: ID of the resource
+required: true
